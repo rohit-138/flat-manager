@@ -17,7 +17,7 @@ const SplitSchema = new mongoose.Schema(
 
     state: {
       type: String,
-      enum: ["PAID_RECEIVED", "UNPAID"],
+      enum: ["PAID_RECEIVED", "UNPAID","MARK_AS_PAID"],
       required: true,
     },
   },

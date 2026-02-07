@@ -4,7 +4,7 @@ import Expense from "../../../models/Expense";
 
 /**
  * GET /api/expenses?month=YYYY-MM
- * Example: /api/expenses?month=2026-02
+ * Example: /api/expenses?month=2026-01
  */
 export async function GET(req) {
   try {
@@ -13,7 +13,7 @@ export async function GET(req) {
 
     if (!month) {
       return NextResponse.json(
-        { message: "Month query param is required (YYYY-MM)" },
+        { message: "month query param is required (YYYY-MM)" },
         { status: 400 }
       );
     }

@@ -5,13 +5,19 @@ import { connectDB } from "../../../../lib/monogodb";
 
 export async function POST(req) {
   try {
-    const { mobile, password } = await req.json();
+    const body = await req.json();
+    const mobile = String(body.mobile || "").trim();
+    const password = String(body.password || "");
 
     if (!mobile || !password) {
       return NextResponse.json(
         { message: "Mobile number and password are required" },
         { status: 400 }
       );
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined");
     }
 
     await connectDB();
@@ -25,7 +31,8 @@ export async function POST(req) {
       );
     }
 
-    const isMatch = await user.comparePassword(password);
+    // ✅ Plain-text password comparison (NO bcrypt)
+    const isMatch = user.password === password;
 
     if (!isMatch) {
       return NextResponse.json(
@@ -34,7 +41,6 @@ export async function POST(req) {
       );
     }
 
-    // Create JWT
     const token = jwt.sign(
       {
         userId: user._id,
@@ -45,15 +51,24 @@ export async function POST(req) {
       { expiresIn: "7d" }
     );
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Login successful",
-      token,
       user: {
         id: user._id,
         name: user.name,
         mobile: user.mobile,
       },
     });
+
+    // ✅ HttpOnly cookie (recommended)
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

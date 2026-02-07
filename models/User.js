@@ -5,28 +5,29 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true,
+      unique: true, // names match GPay creator exactly
     },
-
-    mobile: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/^[6-9]\d{9}$/, "Please enter a valid mobile number"],
-    },
-
-    password: {
+password: {
       type: String,
       required: true,
       minlength: 4,
     },
+    mobile: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    // 🔑 NEW FIELD
+    last_uploaded_at: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// Plain password comparison
-UserSchema.methods.comparePassword = function (enteredPassword) {
-  return enteredPassword === this.password;
-};
-
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+export default mongoose.models.User ||
+  mongoose.model("User", UserSchema);
