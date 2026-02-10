@@ -1,6 +1,8 @@
 import Swal from "sweetalert2";
 
 export function showExpenseInfo(expense) {
+
+  console.log("Expenses --> ", expense)
   const splitRows = expense.splits.map(
     s => `
       <tr>
@@ -17,6 +19,8 @@ export function showExpenseInfo(expense) {
     html: `
       <p><b>Creator:</b> ${expense.creator}</p>
       <p><b>Total:</b> ₹${expense.total_amount}</p>
+            <p><b>State:</b> ₹${expense.state}</p>
+
       <hr/>
       <table style="width:100%">
         <thead>

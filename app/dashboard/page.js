@@ -20,11 +20,12 @@ export default function DashboardPage() {
   const [expenses, setExpenses] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState("newest");
 
-  /* ------------------ FETCH DATA ------------------ */
-const [user, setUser] = useState(null);
- 
-  // Protect route
+  const [user, setUser] = useState(null);
+
+  /* ---------------- AUTH ---------------- */
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -36,6 +37,8 @@ const [user, setUser] = useState(null);
 
     setUser(JSON.parse(storedUser));
   }, []);
+
+  /* ---------------- FETCH DATA ---------------- */
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,7 +62,7 @@ const [user, setUser] = useState(null);
     fetchData();
   }, [month, year]);
 
-  /* ------------------ MONTH NAV ------------------ */
+  /* ---------------- MONTH NAV ---------------- */
 
   const goPrev = () => {
     if (month === 0) {
@@ -75,14 +78,14 @@ const [user, setUser] = useState(null);
     } else setMonth(m => m + 1);
   };
 
-  /* ------------------ TOTAL ------------------ */
+  /* ---------------- TOTAL ---------------- */
 
   const totalAmount = expenses.reduce(
     (sum, e) => sum + e.total_amount,
     0
   );
 
-  /* ------------------ FLATMATE SHARE ------------------ */
+  /* ---------------- FLATMATE SHARE ---------------- */
 
   const flatmateMap = {};
   expenses.forEach(e => {
@@ -92,7 +95,7 @@ const [user, setUser] = useState(null);
     });
   });
 
-  /* ------------------ COMPLETENESS ------------------ */
+  /* ---------------- COMPLETENESS ---------------- */
 
   const lastDayOfMonth = new Date(
     year,
@@ -110,7 +113,25 @@ const [user, setUser] = useState(null);
       new Date(u.last_uploaded_at) > lastDayOfMonth
   }));
 
-  /* ------------------ UI ------------------ */
+  /* ---------------- SORTING ---------------- */
+
+  const sortedExpenses = [...expenses].sort((a, b) => {
+    if (sortBy === "newest") {
+      return new Date(b.creation_time) - new Date(a.creation_time);
+    }
+    if (sortBy === "oldest") {
+      return new Date(a.creation_time) - new Date(b.creation_time);
+    }
+    if (sortBy === "amount-desc") {
+      return b.total_amount - a.total_amount;
+    }
+    if (sortBy === "amount-asc") {
+      return a.total_amount - b.total_amount;
+    }
+    return 0;
+  });
+
+  /* ---------------- UI ---------------- */
 
   if (loading) {
     return <div className="p-10 text-center">Loading...</div>;
@@ -181,18 +202,32 @@ const [user, setUser] = useState(null);
 
       {/* Expense List */}
       <div className="bg-white rounded-xl p-4 shadow">
-        <div className="flex justify-between mb-3">
+        <div className="flex justify-between items-center mb-3">
           <h2 className="font-semibold">Expenses</h2>
-          <span className="text-xs text-gray-500">
-            {expenses.length} records
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-500">
+              {sortedExpenses.length} records
+            </span>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-xs border rounded px-2 py-1 bg-white"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="amount-desc">Amount ↓</option>
+              <option value="amount-asc">Amount ↑</option>
+            </select>
+          </div>
         </div>
 
-        {expenses.length === 0 ? (
+        {sortedExpenses.length === 0 ? (
           <p className="text-sm text-gray-500">No data</p>
         ) : (
           <div className="space-y-3">
-            {expenses.map(e => (
+            {sortedExpenses.map(e => (
               <div
                 key={e._id}
                 onClick={() => showExpenseInfo(e)}
@@ -202,8 +237,17 @@ const [user, setUser] = useState(null);
                   <p className="font-medium">{e.title}</p>
                   <p className="font-bold">₹{e.total_amount}</p>
                 </div>
+
                 <p className="text-sm text-gray-500">
-                  Created by {e.creator}
+                  Created by {e.creator} •{" "}
+                  {new Date(e.creation_time).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}
                 </p>
               </div>
             ))}
