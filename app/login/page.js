@@ -66,7 +66,7 @@ export default function LoginPage() {
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-            placeholder="9876543210"
+            placeholder="Enter Mobile Number"
             required
           />
         </div>
@@ -78,7 +78,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-            placeholder="••••••••"
+            placeholder="Enter Password"
             required
           />
         </div>
