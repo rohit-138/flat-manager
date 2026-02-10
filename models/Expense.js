@@ -17,7 +17,7 @@ const SplitSchema = new mongoose.Schema(
 
     state: {
       type: String,
-      enum: ["PAID_RECEIVED", "UNPAID","MARK_AS_PAID"],
+      enum: ["PAID_RECEIVED", "UNPAID", "MARK_AS_PAID"],
       required: true,
     },
   },
@@ -31,8 +31,8 @@ const ExpenseSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-    
-      default : "NA"
+
+      default: "NA"
     },
 
     creator: {
@@ -57,7 +57,7 @@ const ExpenseSchema = new mongoose.Schema(
 
     state: {
       type: String,
-      enum: ["ONGOING", "SETTLED","COMPLETED","CLOSED"],
+      enum: ["ONGOING", "SETTLED", "COMPLETED", "CLOSED"],
       required: true,
     },
 
